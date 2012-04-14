@@ -11,7 +11,7 @@
 #
 # It's strongly recommended to check this file into your version control system.
 
-ActiveRecord::Schema.define(:version => 20120411031907) do
+ActiveRecord::Schema.define(:version => 20120413230747) do
 
   create_table "comments", :force => true do |t|
     t.integer  "commentable_id",   :default => 0
@@ -46,6 +46,8 @@ ActiveRecord::Schema.define(:version => 20120411031907) do
     t.datetime "updated_at"
     t.string   "viewable_by"
     t.string   "members_invitable_by"
+    t.boolean  "anon_motion_creation"
+    t.string   "motions_creatable_by"
   end
 
   create_table "memberships", :force => true do |t|
