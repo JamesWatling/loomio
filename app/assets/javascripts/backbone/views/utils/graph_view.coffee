@@ -1,6 +1,6 @@
-Loomio.Views.Utils ||= {}
+Tautoko.Views.Utils ||= {}
 
-class Loomio.Views.Utils.GraphView extends Backbone.View
+class Tautoko.Views.Utils.GraphView extends Backbone.View
 
   initialize: (options)->
     if @options.type == 'pie'
