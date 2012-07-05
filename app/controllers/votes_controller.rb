@@ -24,7 +24,7 @@ class VotesController < GroupBaseController
       @vote.motion = @motion
       @vote.user = current_user
       @vote.save
-      flash[:notice] = "Your vote has been submitted"
+      flash[:success] = "Your vote has been submitted"
       redirect_to :back
     else
       flash[:error] = "Can only vote in voting phase"
@@ -33,15 +33,21 @@ class VotesController < GroupBaseController
   end
 
   def update
-    resource
+    @motion = Motion.find(params[:motion_id])
     if @motion.voting?
-      @vote.update_attributes(params[:vote])
-      flash[:notice] = "Vote updated."
-      @vote.save
+      params[:vote].delete(:id)
+      @vote = Vote.new(params[:vote])
+      @vote.motion = @motion
+      @vote.user = current_user
+      if @vote.save
+        flash[:success] = "Vote updated."
+      else
+        flash[:error] = "Could not update vote."
+      end
     else
       flash[:error] = "Can only vote in voting phase"
     end
-    redirect_to @motion
+    redirect_to @motion.discussion
   end
 
   private

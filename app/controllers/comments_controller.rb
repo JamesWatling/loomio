@@ -2,7 +2,16 @@ class CommentsController < BaseController
   load_and_authorize_resource
 
   def destroy
-    flash[:notice] = "Comment deleted."
-    destroy!{ motion_path(resource.discussion.motions.first) }
+    destroy!{ discussion_url(resource.discussion ) }
+  end
+
+  def like
+    resource.like current_user
+    redirect_to discussion_url(resource.discussion )
+  end
+
+  def unlike
+    resource.unlike current_user
+    redirect_to discussion_url(resource.discussion)
   end
 end

@@ -2,167 +2,198 @@
 # All this logic will automatically be available in application.js.
 # You can use CoffeeScript in this file: http://jashkenas.github.com/coffee-script/
 
-current_tags = ""
-current_tag_filter = "active"
 $ ->
   if $("#motion-form").length > 0
-    #** Edit Moition **
-    date = new Date($("#motion_close_date").val())
-    date_string = "#{date.getDate()}-#{date.getMonth() + 1}-#{date.getFullYear()}"
-    hours = date.getHours()
-    datetime_format = new Date(date_string)
-    $("#input_date").datepicker({"dateFormat": "dd-mm-yy"})
-    $("#input_date").datepicker("setDate", date_string)
-    $("#date_hour").val(hours)
-
-    #** New Motion **
+    #** pad out hour to two digits **
+    pad2 = ((number) ->
+      if number < 10
+        '0' + number
+      else
+        number
+    )
     if $("#new-motion").length > 0
+      #** New Motion **
       datetime = new Date()
       datetime.setDate(datetime.getDate() + 7)
-      hours = datetime.getHours()
+      hours = pad2(datetime.getHours())
       $("#input_date").datepicker({"dateFormat": "dd-mm-yy"})
       $("#input_date").datepicker("setDate", datetime)
       $("#date_hour").val(hours)
       $("#motion_close_date").val(datetime)
+    else
+      #** Edit Motion **
+      date = $("#motion_close_date").val()
+      date_offset = new Date()
+      offset = date_offset.getTimezoneOffset()/-60
+      day = date.substring(8,10)
+      month = date.substring(5, 7)
+      year = date.substring(2,4)
+      hour = (parseInt(date.substring(11,13)) + offset).toString()
+      date_string = "#{day}-#{month}-#{year}"
+      $("#input_date").datepicker({"dateFormat": "dd-mm-yy"})
+      $("#input_date").datepicker("setDate", date_string)
+      $("#date_hour").val(hour)
 
-  #** Reload hidden close_date field **
+# Reload hidden close_date field
+$ ->
   $("#input_date").change((e) ->
+    remove_date_error()
     date = $(this).val()
-    day = date.substring(0,2)
-    month = (parseInt(date.substring(3,5)) - 1).toString()
-    year = date.substring(6,10)
-    hour = $("#date_hour").val()
-    local_datetime = new Date(year, month, day, hour)
+    local_datetime = new Date()
+    local_datetime.setYear(parseInt(date.substring(6,10)))
+    local_datetime.setMonth((parseInt(date.substring(3,5)) - 1), parseInt(date.substring(0,2)))
+    local_datetime.setHours(parseInt($("#date_hour").val()))
     $("#motion_close_date").val(local_datetime)
   )
+
+$ ->
   $("#date_hour").change((e) ->
+    remove_date_error()
     date = $("#input_date").val()
-    day = date.substring(0,2)
-    month = (parseInt(date.substring(3,5)) - 1).toString()
-    year = date.substring(6,10)
-    hour = $(this).val()
-    local_datetime = new Date(year, month, day, hour)
+    local_datetime = new Date()
+    local_datetime.setYear(parseInt(date.substring(6,10)))
+    local_datetime.setMonth((parseInt(date.substring(3,5)) - 1), parseInt(date.substring(0,2)))
+    local_datetime.setHours(parseInt($(this).val()))
     $("#motion_close_date").val(local_datetime)
   )
 
-  #** expand motion row on dashboard and match colour for legend **
-  $(".bordered").click((event, ui) ->
-    expandableRow = $(this).children().last()
-    expandableRow.toggle()
-    if expandableRow.is(":visible")
-      $(this).find(".toggle-button").html('-')
-      graph_legend = $(this).find(".jqplot-table-legend")
-      if $(this).hasClass('closed')
-        graph_legend.addClass('closed')
-        graph_legend.removeClass('voting')
+#generic code to be moved out of motions.js
+$ ->
+  if $(".relative-time").length > 0
+    today = new Date()
+    month = [ "Jan", "Feb", "Mar", "Apr", "May", "Jun",
+               "Jul", "Aug", "Sep", "Oct", "Nov", "Dec" ]
+    date_offset = new Date()
+    offset = date_offset.getTimezoneOffset()/-60
+    $(".relative-time").each((index, element)->
+      date = $(element).html()
+      local_datetime = new Date()
+      local_datetime.setYear(date.substring(0,4))
+      local_datetime.setMonth((parseInt(date.substring(5,7)) - 1).toString(), date.substring(8,10))
+      local_datetime.setHours((parseInt(date.substring(11,13)) + offset).toString())
+      local_datetime.setMinutes(date.substring(14,16))
+      hours = local_datetime.getHours()
+      mins = local_datetime.getMinutes()
+      mins = "0#{mins}" if mins.toString().length == 1
+      if local_datetime.getDate() == today.getDate()
+        if hours < 12
+          hours = 12 if hours == 0
+          date_string = "#{hours}:#{mins} AM"
+        else
+          hours = 24 if hours == 12
+          date_string = "#{hours-12}:#{mins} PM"
       else
-        graph_legend.addClass('voting')
-        graph_legend.removeClass('closed')
-    else
-      $(this).find(".toggle-button").html('+')
+        date_string = "#{local_datetime.getDate()} #{month[local_datetime.getMonth()]}"
+      $(element).html(String(date_string))
+    )
+
+
+
+# The following methods are used to provide client side validation for
+# - character count
+# - presence required
+# - date validation specific for motion-form
+remove_date_error = () ->
+  $(".validate-motion-close-date").parent().removeClass("error")
+  $(".date-error-message").hide()
+
+$ ->
+  $(".validate-presence").keyup(() ->
+    $(".validate-presence").parent().removeClass("error")
+    $(".presence-error-message").hide()
   )
 
-  #** prevent expansion of motion **
-  $(".no-toggle").click((event) ->
-    event.stopPropagation()
+$ ->
+  $(".presence-error-message").hide()
+  $(".date-error-message").hide()
+
+  $(".run-validations").click((event, ui) ->
+    $(".validate-presence").each((index, element) ->
+      if $(element).val() == ""
+        $(element).parent().addClass("error")
+        $(".presence-error-message").show()
+    )
+
+    runCustomValidations()
+
+    $(".control-group").each((index, group) ->
+      if $(group).hasClass("error")
+        event.preventDefault()
+    )
   )
 
-  #** limit character count for statement**
-  pluralize_characters = (num) ->
-    if(num == 1)
-      return num + " character"
-    else
-      return num + " characters"
+  runCustomValidations = ->
+    motionCloseDateValidation()
 
-  $("#limited").keyup(() ->
-    chars = $("#limited").val().length
-    left = 249 - chars
-    if(left >= 0)
-      $(".char_count").text(pluralize_characters(left) + " left")
-      $(".clearfix").removeClass("error")
-    else
-      left = left * (-1)
-      $(".char_count").text(pluralize_characters(left) + " too long")
-      $(".clearfix").addClass("error")
+  motionCloseDateValidation = ->
+    if $("#motion-form").length > 0
+      time_now = new Date()
+      selected_date = new Date($("#motion_close_date").val())
+      if selected_date <= time_now
+        $(".validate-motion-close-date").parent().addClass("error")
+        $(".date-error-message").show()
+
+# character count for statement on discussion:show page
+pluralize_characters = (num) ->
+  if(num == 1)
+    return num + " character"
+  else
+    return num + " characters"
+
+# display charcaters left
+display_count = (num, object) ->
+  if(num >= 0)
+    $(".character-counter").text(pluralize_characters(num) + " left")
+    object.parent().removeClass("error")
+  else
+    num = num * (-1)
+    $(".character-counter").text(pluralize_characters(num) + " too long")
+    object.parent().addClass("error")
+
+# character count for 250 characters max
+$ ->
+  $(".limit-250").keyup(() ->
+    $(".error-message").hide()
+    chars = $(".limit-250").val().length
+    left = 250 - chars
+    display_count(left, $(".limit-250"))
   )
 
+ #character count for 150 characters max
+$ ->
+  $(".limit-150").keyup(() ->
+    $(".error-message").hide()
+    chars = $(".limit-150").val().length
+    left = 150 - chars
+    display_count(left, $(".limit-150"))
+  )
+
+  # adds bootstrap popovers to vote buttons
+$ ->
+  $(".vote").popover
+    placement: "top"
+
+# disable links on usernames
+$ ->
+  $('.comment-username a, .member-name a').click((event) ->
+    event.preventDefault()
+  )
+
+#expand description text on proposal
+$ ->
+  if $(".motion").length > 0
+    $(".see-more").click((event) ->
+      $(".short-description").toggle()
+      $(".long-description").toggle()
+      event.preventDefault()
+    )
+
+# check for error and submit vote
+$ ->
   $(".vote").click((event) ->
-    if $(".clearfix").hasClass("error")
-      $('#new_vote').preventDefault()
+    if $(".control-group").hasClass("error")
+      event.preventDefault()
     else
       $('#new_vote').submit()
+      event.preventDefault()
   )
-
-  #** tagging stuff **
-  if $("#motion").length > 0
-    $(".group-tags button").not(".not-used").each (index, element) ->
-      $(element).click (event, element)->
-        #event.preventDefault()
-        processTagSelection(this)
-
-  processTagSelection = (current_element) ->
-    current_tag = current_element.innerText
-
-    if (current_tag == "everyone")
-      current_tags = ""
-    else if ( current_tags.indexOf(current_tag) == -1)
-      current_tags += ".#{current_tag}"
-    else
-      current_tags = current_tags.replace(".#{current_tag}", "")
-
-    showVotesBasedOnTag(current_tags)
-    toggleTagClasses(current_element, current_tag, current_tags)
-    refreshStatsGraph()
-
-  showVotesBasedOnTag = (tag_names) ->
-    if (tag_names == "")
-      $("#votes-table tr").each (index, element) ->
-        $(element).show()
-    else
-      $("#votes-table tr.everyone").each (index, element) ->
-        $(element).hide()
-      $(current_tags.split(".")).each (index, element) ->
-        if (element != "")
-          $("#votes-table .#{element}").fadeIn()
-
-  toggleTagClasses = (current_element, current_tag, current_tags) ->
-    if ( current_tag == "everyone" && current_element.className != current_tag_filter)
-      $(".group-tags button").each (index, element) ->
-        $(element).removeClass(current_tag_filter)
-    else
-      #set the everyone link to not active
-      $(".group-tags #everyone").removeClass(current_tag_filter)
-    $(current_element).toggleClass(current_tag_filter)
-    if ( current_tags == "" && current_tag != "everyone" )
-      $(".group-tags #everyone").addClass(current_tag_filter)
-
-  refreshStatsGraph = ->
-    yes_count = getVoteCount("yes")
-    abstain_count = getVoteCount("abstain")
-    no_count = getVoteCount("no")
-    block_count = getVoteCount("block")
-
-    filtered_stats_data = [["Yes (#{yes_count})", yes_count, "Yes"], ["Abstain (#{abstain_count})", abstain_count, "Abstain"], ["No (#{no_count})", no_count, "No"], ["Block (#{block_count})", block_count, "Block"]]
-
-    $('#graph').empty()
-
-    this.pie_graph_view = new Tautoko.Views.Utils.GraphView
-      el: '#graph.pie'
-      id_string: 'graph'
-      legend: true
-      data: filtered_stats_data
-      type: 'pie'
-      tooltip_selector: '#tooltip'
-
-  getVoteCount = (vote_type) ->
-    vote_count = 0
-    if ($("#votes-table img[alt='#{vote_type} image']").is(":visible"))
-      vote_count = $("#votes-table img[alt='#{vote_type} image']").length
-    return vote_count
-
-  # NOTE (Jon): We should implement a better method for scoping javascript to specific pages
-  # http://stackoverflow.com/questions/6167805/using-rails-3-1-where-do-you-put-your-page-specific-javascript-code
-  if $("#motion").length > 0
-    $("#description").html(linkify_html($("#description").html()))
-    $(".comment-body").each(-> $(this).html(linkify_html($(this).html())))
-

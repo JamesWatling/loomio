@@ -1,21 +1,27 @@
-#group-form.row.padding
-  .span10
-    =form_for(@group) do |f|
-      %h5 Group Name
-      .left-format=f.text_field :name #, placeholder: "Group Name"
-      %hr
-      .privacy-settings
-        %h2 Privacy Settings
-        .setting.row
-          .span6
-            %h4 Who can see this group?
-          .span3
-            =f.select :viewable_by, [:everyone, :members],
-              member_label: Proc.new { |option| group_permissions_label(option) }
-        .setting.row
-          .span6
-            %h4 Who can invite members to this group?
-          .span3
-            =f.select :members_invitable_by, [:members, :admins],
-              member_label: Proc.new { |option| group_permissions_label(option) }
-      .standard-button=f.submit
+#group-form
+  =form_for(group) do |f|
+    .control-group
+      = f.label :name, "Group Name", {class: "control-label", for: "group-name"}
+      = f.text_field :name, class: "validate-presence inputError limit-250", id: "group-name"
+      %span.presence-error-message Please fill in a title
+    .character-counter
+    .privacy-settings
+      %h3 Privacy Settings
+      .row
+        .span6#setting-label
+          Who can see this group?
+        .span3
+          =f.select :viewable_by, [:everyone, :members].collect{|option| [group_permissions_label(option),option]} if group.parent.nil?
+          =f.select :viewable_by, [:everyone, :members, :parent_group_members].collect{|option| [group_permissions_label(option),option]} unless group.parent.nil?
+      .row
+        .span6#setting-label
+          Who can invite members to this group?
+        .span3
+          =f.select :members_invitable_by, [:members, :admins].collect{|option| [group_permissions_label(option),option]}
+      =f.hidden_field :parent_id, :value => parent.id unless parent.nil?
+    .notification-settings
+      = f.check_box :email_new_motion # TODO: check this by default
+      = f.label :email_new_motion,
+        "Email group members when a new motion is created in this group",
+        class: "checkbox-label"
+    = f.submit class: "btn btn-info run-validations", id: "update-group"

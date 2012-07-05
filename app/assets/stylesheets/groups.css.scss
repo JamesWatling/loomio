@@ -1,147 +1,233 @@
 // Place all the styles related to the groups controller here.
 // They will automatically be included in application.css.
 // You can use Sass (SCSS) here: http://sass-lang.com/
-$token-input-line-height: 10px;
-$token-input-font-size: 10px;
-$token-input-width: 278px;
-
-.clear-both {
-  clear: both;
-  height: 15px;
-}
-
-/**** Group admin ****/
-#group {
-  .btn.small { font-size: 12px }
-  #right-panel {
-    #membership-requested { width: 200px; }
-  }
-}
+@import "settings";
+@import "bootstrap/mixins";
+@import "mixins";
 
 #group-form {
   form {
     width: 550px;
+    .inputError {
+      display: inline-block;
+      @include ie7-inline-block();
+    }
     #group_name { width: 390px; }
+    #setting-label {
+      margin-bottom: 4px;
+      color: $mid-grey;
+    }
     .privacy-settings {
-      .setting { padding-top: 20px; }
-      select { width: 150px; }
+      padding-bottom: 10px;
+      select {
+        width: 182px;
+        margin-bottom: 10px;
+      }
       .input { text-align: right; }
     }
   }
 }
 
 /**** Group page ****/
-.group-title {
-  padding-top: 20px;
-  padding-bottom: 2px;
-  border-bottom: 1px solid #888;
-  .btn { float: right; margin-top: -12px; }
+
+li.no-discussions, li.no-proposals {
+  padding: 5px 10px;
+  background-color: $highlighted
+}
+.tick {
+  padding-left: 5px;
+  position: relative;
+  bottom: 4px;
+}
+#tool-bar-item-discussion {
+  padding-left: 30px;
+  background-image:url('/assets/discussion.png');
+  background-repeat: no-repeat;
+  background-size: 15px;
+  background-position-x: 10px;
+  background-position-y: 5px;
 }
 
-#btn-create-motion{ float: right; margin-top: -8px;}
-
-#member-panel {
-  padding-top: 23px;
-  #user_email_input {
+#tool-bar-item-discussion:hover {
+  background-image:url('/assets/discussion-white.png');
+  /*background-repeat: no-repeat;*/
+  /*background-size: 15px;*/
+}
+/*request membership panel*/
+#request-membership {
+  form { display: inline; }
+  .btn {
+    width: 150px;
+    color: $mid-grey;
+  }
+  margin-bottom: 10px;
+}
+/* group description panel */
+#group-description {
+  color: $dark-grey;
+  .group-description {
+    font-size: $font-small;
+    width: 260px;
+    float: left;
     display: inline;
-    .input {
-      display: inline;
-      margin-left: 0px;
-    }
-    #user_email {
-      width: 270px;
-      margin-top: 5px;
-    }
+    padding: 2px 0 2px 2px;
   }
-  #user-form{
-    #member-email-input { padding-top: 10px; }
-    #user-list{ padding-top: 4px; }
-  }
-  #request-list {
-    margin-top: 8px;
-  }
-  #button-invite {
-    margin-top: 5px;
-    text-align: right;
-  }
-  #member-requests{ margin-top: 5px; display: inline; }
-  #users-list {
+}
+#add-group-description {
+  form { margin-bottom: 0px }
+  #description-input {
     width: 270px;
-    margin-top: 15px;
+    height: 90px;
+    margin-bottom: 2px;
   }
-  #editable-user-row{ margin-top: -10px; }
-  #uneditable-user { display: inline; }
-  #uneditable-tag-list { display: inline; }
-  .uneditable-tag {
-    border: 0px;
-    border-radius: 5px;
-    -moz-border-radius: 5px;
-    -webkit-border-radius: 5px;
-    font-size: 10px;
-    padding: 2px;
-    padding-left: 3px;
-    line-height: 10px;
-    background-color: #EFF2F7;
-    display: inline;
-    margin-left: 3px;
-    }
-  div.token-input-dropdown-facebook {
+  .character-counter {
+    width: 278px;
+    position: relative;
+    bottom: 0px;
+    margin-bottom: 8px;
   }
-  ul.token-input-list-facebook {
-    line-height: $token-input-line-height;
-    font-size: $token-input-font-size;
-    width: $token-input-width !important;
-    border-color: whitesmoke;
-    border-radius: 2px;
-    -moz-border-radius: 2px;
-    -webkit-border-radius: 2px;
-    margin-top: -2px;
-  }
-  ul.token-input-list-facebook li {
-    line-height: 10px;
-    border: 0px;
-    padding-bottom: 2px;
-  }
-  ul.token-input-list-facebook p {
-    line-height: $token-input-line-height;
-    font-size: 9px;
-    color: grey;
-  }
-  div.token-input-dropdown-facebook p {
-    line-height: $token-input-line-height;
-    font-size: $token-input-font-size;
-  }
-  .token-input-input-token-facebook input {
-    line-height: $token-input-line-height;
-    font-size: $token-input-font-size;
-    height: auto;
-    width: 50px !important;
-  }
-  ul.membership-row li {
-    display: block;
-    font-size: 14px;
-    float: left;
-  }
-  ul.membership-row li.name-label {
-  }
-  ul.membership-row li.membership-admin-functions {
-    float:right;
-  }
-  .unstyled.membership-row.tags {
-    float: left;
+  .control-group { margin-bottom: 0px; }
+}
+#cancel-add-description {
+  color: $mid-grey;
+  padding-right: 10px;
+  float: right;
+  position: relative;
+  top: 5px;
+}
+#add-description {
+  color: $mid-grey;
+}
+
+#add-member-popup-btn {
+  margin-bottom: 5px;
+}
+
+/* sub groups panel */
+#sub-groups {
+  .new_motion_link {
+    float: right;
+    padding-right: 10px;
   }
 }
 
-/**** dashboard ****/
-.group-panel {
-  margin-top: 9px;
-  #group-list {
-    margin-top: 4px;
-    padding-top: 5px;
-    padding-bottom: 5px;
+/* add member panel */
+#add-members {
+  .btn {
+    float: left;
+    width: 150px;
+    text-align: left;
+  }
+  .btn#invite {
+    margin-top: 0px;
+    width: 60px;
+    float: right;
+  }
+  #cancel-add-members {
+    color: $mid-grey;
+    padding-right: 10px;
+    float: right;
+    position: relative;
+    top: 6px;
+  }
+  li { padding: 0px; }
+}
+
+#invite-group-members {
+  .modal-body {
+    max-height: 300px;
+    overflow-y: scroll;
+  }
+  form {
+    margin-bottom: 0px;
+    input.btn { margin: 0px; }
   }
 }
 
-/**** general ****/
-.links{ display: inline; float: right; padding-top: 6px; }
-.title-row { background-color: #EEE; padding: 4px; color: #555; }
+.invite-member-checkbox-container {
+  input, label { display: inline }
+}
+
+#user_email_input {
+  display: inline;
+  #user_email {
+    width: 270px;
+  }
+}
+input#user_email{
+  margin-bottom: 5px;
+}
+#new_user { padding-bottom: 14px; }
+
+/* membership panel */
+.dropdown#members { padding-left: 5px; }
+
+#membership-count {
+  display: inline;
+  float: right;
+  font-size: $font-small;
+  color: white;
+  background-color: $light-grey;
+  margin: 2px;
+}
+.user-name {
+  color: $mid-grey;
+  width: 178px;
+  display: inline-block;
+  @include ie7-inline-block();
+}
+.admin-controls {
+  float: right;
+  width: 98px;
+  text-align: right;
+  font-size: $font-tiny;
+  display: inline;
+  .close {
+    padding-left: 8px;
+    position: relative;
+    bottom: 2px;
+    color: $mid-grey;
+    opacity: 0.6;
+  }
+  .close:hover {
+    color: black;
+  }
+  a { color: $mid-grey; }
+}
+
+
+/**** Private group form ****/
+#private-message {
+  color: $mid-grey;
+  text-align: center;
+  width: 50%;
+  margin: 0px auto;
+}
+
+/* dashboard */
+.sub-panel a { color: $mid-grey; }
+.sub-group {
+  font-size: $font-small;
+  padding-left: 20px;
+}
+
+
+/*.info-help {*/
+  /*margin-left: 6px;*/
+  /*height: 19px;*/
+  /*width: 16px;*/
+  /*-moz-opacity: .5;*/
+  /*filter:alpha(opacity=50);*/
+  /*opacity: 0.5;*/
+  /*background-image:url("/assets/dark-info.png");*/
+  /*background-repeat: no-repeat;*/
+  /*background-position-y: 3px;*/
+  /*display: inline-block;*/
+  /*@include ie7-inline-block();*/
+  /*cursor: pointer;*/
+  /*position: relative;*/
+  /*bottom: 3px;*/
+/*}*/
+/*.info-help:hover {*/
+  /*opacity: 1;*/
+/*}*/

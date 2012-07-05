@@ -8,15 +8,12 @@ describe "Groups" do
       @user = User.make!
       @group = Group.make!(name: 'Test Group', viewable_by: :members)
       @group.add_member!(@user)
-      @motion = create_motion(name: 'Test Motion', group: @group,
+      @discussion = create_discussion(group: @group, author: @user)
+      @motion = create_motion(name: 'Test Motion',
+                              discussion: @discussion,
                               author: @user, facilitator: @user)
       page.driver.post user_session_path, 'user[email]' => @user.email,
                                           'user[password]' => 'password'
-    end
-
-    it "can view their groups" do
-      visit '/groups'
-      should have_selector('h3', text:'Groups')
     end
 
     context "admin of a group" do
@@ -30,11 +27,17 @@ describe "Groups" do
         current_url.should == edit_group_url(@group)
       end
 
+      it "can visit add subgroup page" do
+        visit add_subgroup_group_path(@group)
+
+        have_css("#new-subgroup")
+      end
+
       it "can edit group" do
         visit edit_group_path(@group)
 
-        fill_in 'group_name', with: 'New groupie'
-        click_on 'Update Group'
+        fill_in 'group-name', with: 'New groupie'
+        find("#update-group").click
 
         should have_content("New groupie")
       end
@@ -54,6 +57,15 @@ describe "Groups" do
 
           should have_content("Add member")
         end
+      end
+    end
+
+    context "group member viewing a group" do
+      it "can add a discussion" do
+        visit group_path(@group)
+
+        click_on 'Start a new discussion'
+        should have_css(".discussions.new")
       end
     end
 
@@ -114,24 +126,47 @@ describe "Groups" do
         visit group_path(@group)
 
         should have_content("Test Group")
-        should have_content("Current members")
-      end
-
-      it "can click on 'Create a motion'" do
-        visit group_path(@group)
-
-        click_link 'Create a motion'
-        should have_content("New motion")
+        should have_content("Members")
       end
     end
 
-    it "doesn't let us view a group the user does not belongs to" do
-      @group2 = Group.make(name: 'Test Group2', viewable_by: :members)
-      @group2.save
-      @group2.add_member!(User.make!)
-      visit group_path(@group2)
-      should have_content("Test Group2")
-      should have_no_content("Users")
+    context "group non-member viewing a private group" do
+      it "displays 'group not found' page" do
+        @group2 = Group.make(name: 'Test Group2', viewable_by: :members)
+        @group2.save
+        @group2.add_member!(User.make!)
+        visit group_path(@group2)
+        should have_content("Group not found")
+        should have_no_content("Users")
+      end
+    end
+  end
+
+  context "logged-out user" do
+    it "can view a public group" do
+      @user = User.make!
+      @group = Group.make!(name: 'Test Group', viewable_by: :everyone)
+      @group.add_member!(@user)
+      @discussion = create_discussion(group: @group, author: @user)
+      @motion = create_motion(name: 'Test Motion',
+                              discussion: @discussion,
+                              author: @user, facilitator: @user)
+      visit group_path(@group)
+
+      should have_content("Test Group")
+    end
+
+    it "viewing a private group redirects to log-in" do
+      @user = User.make!
+      @group = Group.make!(name: 'Test Group', viewable_by: :members)
+      @group.add_member!(@user)
+      @discussion = create_discussion(group: @group, author: @user)
+      @motion = create_motion(name: 'Test Motion',
+                              discussion: @discussion,
+                              author: @user, facilitator: @user)
+      visit group_path(@group)
+
+      should have_css("body.sessions.new")
     end
   end
 end

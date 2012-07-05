@@ -1,4 +1,5 @@
-Tautoko::Application.configure do
+require 'awesome_print'
+Loomio::Application.configure do
   # Settings specified here will take precedence over those in config/application.rb
 
   # In the development environment your application's code is reloaded on
@@ -30,9 +31,9 @@ Tautoko::Application.configure do
 
   config.action_mailer.default_url_options = { :host => 'localhost:3000' }
 
-  ActionMailer::Base.delivery_method = :smtp
-  ActionMailer::Base.smtp_settings = {
-    :address => "localhost",
-    :port => 1025,
-    :domain => "tautoko.co.nz" }
+  ActionMailer::Base.delivery_method = :test
+  ActionMailer::Base.delivery_method = :file
+  ActionMailer::Base.file_settings = {
+    :location => Rails.root.join('tmp/mail')
+  }
 end

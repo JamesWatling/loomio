@@ -11,7 +11,18 @@
 #
 # It's strongly recommended to check this file into your version control system.
 
-ActiveRecord::Schema.define(:version => 20120413230747) do
+ActiveRecord::Schema.define(:version => 20120614054726) do
+
+  create_table "comment_votes", :force => true do |t|
+    t.integer  "comment_id"
+    t.integer  "user_id"
+    t.boolean  "value"
+    t.datetime "created_at"
+    t.datetime "updated_at"
+  end
+
+  add_index "comment_votes", ["comment_id"], :name => "index_comment_votes_on_comment_id"
+  add_index "comment_votes", ["user_id"], :name => "index_comment_votes_on_user_id"
 
   create_table "comments", :force => true do |t|
     t.integer  "commentable_id",   :default => 0
@@ -28,13 +39,37 @@ ActiveRecord::Schema.define(:version => 20120413230747) do
   end
 
   add_index "comments", ["commentable_id"], :name => "index_comments_on_commentable_id"
+  add_index "comments", ["parent_id"], :name => "index_comments_on_parent_id"
   add_index "comments", ["user_id"], :name => "index_comments_on_user_id"
+
+  create_table "did_not_votes", :force => true do |t|
+    t.integer  "user_id"
+    t.integer  "motion_id"
+    t.datetime "created_at"
+    t.datetime "updated_at"
+  end
+
+  add_index "did_not_votes", ["motion_id"], :name => "index_did_not_votes_on_motion_id"
+  add_index "did_not_votes", ["user_id"], :name => "index_did_not_votes_on_user_id"
+
+  create_table "discussion_read_logs", :force => true do |t|
+    t.integer  "discussion_activity_when_last_read"
+    t.integer  "user_id"
+    t.datetime "created_at"
+    t.datetime "updated_at"
+    t.integer  "discussion_id"
+  end
+
+  add_index "discussion_read_logs", ["discussion_id"], :name => "index_motion_read_logs_on_discussion_id"
+  add_index "discussion_read_logs", ["user_id"], :name => "index_motion_read_logs_on_user_id"
 
   create_table "discussions", :force => true do |t|
     t.integer  "group_id"
     t.integer  "author_id"
     t.datetime "created_at"
     t.datetime "updated_at"
+    t.string   "title"
+    t.integer  "activity",   :default => 0, :null => false
   end
 
   add_index "discussions", ["author_id"], :name => "index_discussions_on_author_id"
@@ -46,9 +81,14 @@ ActiveRecord::Schema.define(:version => 20120413230747) do
     t.datetime "updated_at"
     t.string   "viewable_by"
     t.string   "members_invitable_by"
-    t.boolean  "anon_motion_creation"
-    t.string   "motions_creatable_by"
+    t.integer  "parent_id"
+    t.boolean  "email_new_motion",     :default => true
+    t.boolean  "hide_members",         :default => false
+    t.boolean  "beta_features",        :default => false
+    t.string   "description"
   end
+
+  add_index "groups", ["parent_id"], :name => "index_groups_on_parent_id"
 
   create_table "memberships", :force => true do |t|
     t.integer  "group_id"
@@ -58,55 +98,39 @@ ActiveRecord::Schema.define(:version => 20120413230747) do
     t.string   "access_level"
   end
 
+  add_index "memberships", ["group_id"], :name => "index_memberships_on_group_id"
+  add_index "memberships", ["user_id"], :name => "index_memberships_on_user_id"
+
   create_table "motions", :force => true do |t|
     t.string   "name"
     t.text     "description"
-    t.integer  "group_id"
     t.integer  "author_id"
     t.integer  "facilitator_id"
     t.datetime "created_at"
     t.datetime "updated_at"
-    t.string   "phase",              :default => "voting", :null => false
-    t.string   "discussion_url",     :default => "",       :null => false
-    t.integer  "no_vote_count"
+    t.string   "phase",          :default => "voting", :null => false
+    t.string   "discussion_url", :default => "",       :null => false
     t.datetime "close_date"
     t.integer  "discussion_id"
-    t.boolean  "disable_discussion", :default => false
   end
 
+  add_index "motions", ["author_id"], :name => "index_motions_on_author_id"
   add_index "motions", ["discussion_id"], :name => "index_motions_on_discussion_id"
 
-  create_table "taggings", :force => true do |t|
-    t.integer  "tag_id"
-    t.integer  "taggable_id"
-    t.string   "taggable_type"
-    t.integer  "tagger_id"
-    t.string   "tagger_type"
-    t.string   "context",       :limit => 128
-    t.datetime "created_at"
-  end
-
-  add_index "taggings", ["tag_id"], :name => "index_taggings_on_tag_id"
-  add_index "taggings", ["taggable_id", "taggable_type", "context"], :name => "index_taggings_on_taggable_id_and_taggable_type_and_context"
-
-  create_table "tags", :force => true do |t|
-    t.string "name"
-  end
-
   create_table "users", :force => true do |t|
-    t.string   "email",                                 :default => "",    :null => false
-    t.string   "encrypted_password",     :limit => 128, :default => ""
+    t.string   "email",                                :default => "",    :null => false
+    t.string   "encrypted_password",                   :default => ""
     t.string   "reset_password_token"
     t.datetime "reset_password_sent_at"
     t.datetime "remember_created_at"
-    t.integer  "sign_in_count",                         :default => 0
+    t.integer  "sign_in_count",                        :default => 0
     t.datetime "current_sign_in_at"
     t.datetime "last_sign_in_at"
     t.string   "current_sign_in_ip"
     t.string   "last_sign_in_ip"
     t.datetime "created_at"
     t.datetime "updated_at"
-    t.boolean  "admin",                                 :default => false
+    t.boolean  "admin",                                :default => false
     t.string   "name"
     t.string   "unconfirmed_email"
     t.string   "invitation_token",       :limit => 60
@@ -115,6 +139,7 @@ ActiveRecord::Schema.define(:version => 20120413230747) do
     t.integer  "invitation_limit"
     t.integer  "invited_by_id"
     t.string   "invited_by_type"
+    t.datetime "deleted_at"
   end
 
   add_index "users", ["email"], :name => "index_users_on_email", :unique => true

@@ -4,40 +4,66 @@
 
 $ ->
   # Only execute on group page
-  if $("#group").length > 0
-    addUserTag = (group_id, tag_name, user_name) =>
-      $.ajax("/groups/#{group_id}/user/#{user_name}/add_user_tag/#{tag_name}")
-
-    deleteUserTag = (group_id, tag_name, user_name) =>
-      $.ajax("/groups/#{group_id}/user/#{user_name}/delete_user_tag/#{tag_name}")
-
+  if $("body.groups").length > 0
     $("#membership-requested").hover(
       (e) ->
         $(this).text("Cancel Request")
       (e) ->
         $(this).text("Membership Requested")
     )
+  # Add a group description
+  $ ->
+    if $("body.groups").length > 0
+      $("#add-description").click((event) ->
+        $("#description-placeholder").toggle()
+        $("#add-group-description").toggle()
+        event.preventDefault()
+      )
+      $("#edit-description").click((event) ->
+        $("#group-description").toggle()
+        $("#add-group-description").toggle()
+        event.preventDefault()
+      )
+      $("#cancel-add-description").click((event) ->
+        $("#add-group-description").toggle()
+        if $("#group-description").text().match(/\S/)
+          $("#group-description").toggle()
+        else
+          $("#description-placeholder").toggle()
+        event.preventDefault()
+      )
 
-    # For each user in the list, display their current group tags
-    $("#users-list").children().each (index, user_list_element) =>
-      token_display_element = $("#user-tags-#{$(user_list_element).attr("id")}")
-      if (token_display_element.length > 0)
-        group_id = $("#group_id").val()
-        available_group_tags = "/groups/#{group_id}/group_tags.json"
+#*** tick on proposal dropdown ***
+$ ->
+  # Only execute on group page
+  $("#display-closed").click((event) ->
+    $("#open").hide()
+    $("#closed").show()
+    $("#tick-closed").show()
+    $("#tick-current").hide()
+    $("#proposal-phase").text("Closed proposals")
+    event.preventDefault()
+  )
+  $("#display-current").click((event) ->
+    $("#open").show()
+    $("#closed").hide()
+    $("#tick-current").show()
+    $("#tick-closed").hide()
+    $("#proposal-phase").text("Current proposals")
+    event.preventDefault()
+  )
 
-        token_input_object = token_display_element.tokenInput(
-          available_group_tags
-          crossDomain: false, preventDuplicates: true, theme: "facebook"
-          onAdd: (item)-> addUserTag group_id, item.name, $(user_list_element).attr("id")
-          onDelete: (item)-> deleteUserTag group_id, item.name, $(user_list_element).attr("id")
-        )
-
-        # Prepopulate token inputs with tags
-
-        $($("#user-existing-tags-#{$(user_list_element).attr("id")}").val().split(",")).each (index, element) =>
-          if (element != "")
-            token_input_object.tokenInput("add", {id: element, name: element})
-
-    if window.location.href.split("#")[1] == "users"
-      $(".tabs a:last").click()
-
+#*** add member form ***
+$ ->
+  # Only execute on group page
+  if $("body.groups").length > 0
+    $(".group-add-members").click((event) ->
+      $(".group-add-members").hide()
+      $("#invite-group-members").show()
+      event.preventDefault()
+    )
+    $("#cancel-add-members").click((event) ->
+      $(".group-add-members").show()
+      $("#invite-group-members").hide()
+      event.preventDefault()
+    )

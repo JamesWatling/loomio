@@ -1,3 +1,202 @@
-// Place all the styles related to the Discussions controller here.
-// They will automatically be included in application.css.
-// You can use Sass (SCSS) here: http://sass-lang.com/
+@import "settings";
+/*@import "bootstrap";*/
+@import "mixins";
+
+/** new discussion form*/
+
+body.discussions.new {
+  #discussion_notify_group_upon_creation { margin-bottom: 30px; }
+  .btn { display: block; }
+}
+
+body.discussions.show {
+  .discussion-title {
+    width: 438px;
+    color: $dark-grey;
+    padding: 5px 10px 5px 10px;
+    h1 {
+      padding: 0px;
+      line-height: 1.2em;
+    }
+  }
+}
+
+/*** comments, positions & proposals in History ***/
+#content-history {
+  #new-comment-form{
+    border-top: 1px solid $light-grey;
+    margin-bottom: 0px;
+    padding: 10px 0 42px 10px;
+    background-color: $comment-color;
+  }
+  #new-comment{
+    margin: 0 0 5px 0px;
+    width: 428px;
+    max-width: 428px;
+    height: 80px;
+    color: $dark-grey;
+  }
+  ul {
+    list-style: none;
+    margin-left: 0px;
+  }
+  #no-messages {
+    padding: 5px 10px;
+  }
+
+  /* comment */
+  .comment{
+    padding: 5px 10px;
+    color: $dark-grey;
+    background-color: $comment-color;
+  }
+  .comment .comment-username{
+    font-weight: bold;
+    float: left;
+    font-size: $font-small;
+  }
+  .comment .comment-label{
+    color: $mid-grey;
+    margin-left: 0.4em;
+    display: inline;
+    font-size: $font-small;
+  }
+  .comment .comment-body{
+    margin-left: 0.4em;
+    display: inline;
+    font-size: $font-small;
+  }
+  .comment .comment-time{
+    color: $dark-grey;
+    font-size: $font-tiny;
+  }
+  .comment .comment-likes{
+    color: $dark-grey;
+    font-size: $font-tiny;
+  }
+
+  /* position */
+  .position .position-icon{
+    float: left;
+    padding-right: 0.4em;
+    display: block;
+    height: 18px;
+  }
+  .position .position-message{
+    padding-left: 0.4em;
+    display: inline;
+  }
+
+  /* proposal */
+  .proposal{
+    background: $comment-color;
+    color: $mid-grey;
+  }
+  .proposal .proposal-text{
+    color: $dark-grey;
+    margin-left: 0.4em;
+    font-style: italic;
+  }
+  .proposal.current{
+    background: $current-proposal;
+  }
+}
+
+/*  proposal panel  */
+#content-proposal {
+  .no-proposals {
+    padding: 5px 10px;
+  }
+  /*a { color: $dark-grey; }*/
+  li { padding: 0px; }
+  li .motion { padding: 5px 15px; }
+  .close-date {
+    font-size: $font-tiny;
+    color: $mid-grey;
+  }
+}
+
+li.current-proposal {
+  background-color: $current-proposal;
+  table.jqplot-table-legend { background-color: $current-proposal; }
+}
+li.preview { padding: 0px; }
+li.preview a {
+  padding: 10px 15px;
+  text-decoration: none;
+}
+
+// Discussion preview list panel
+//
+// NOTE: this code is shared with the group show page and
+//       the dashboard page.
+//
+.discussion-preview:hover {
+  background-color: $selector;
+}
+
+.discussion-preview {
+  a {
+    color: $dark-grey;
+    display: block;
+    padding: 9px;
+  }
+  a:hover {
+    text-decoration: none;
+  }
+  .discussion-title {
+    display: inline-block;
+    /*@include ie7-inline-block();*/
+    width: 480px;
+  }
+  .group-name {
+    font-size: $font-small;
+    color: $mid-grey;
+    width: 480px;
+  }
+  .notification-info {
+    display: inline-block;
+    float: right;
+  }
+  .relative-time {
+    color: $mid-grey;
+    display: inline-block;
+    position: relative;
+    bottom: 16px;
+    padding-right: 10px;
+  }
+  .proposal-close-date {
+    font-size: $font-medium;
+    display: inline;
+  }
+  .discussion-icon-container {
+    display: inline-block;
+    background-size: 25px;
+    background-repeat: no-repeat;
+    width: 32px;
+    height: 30px;
+    background-image: url("discussion.png");
+  }
+  .enabled-icon {
+    -moz-opacity: 1.0;
+    filter:alpha(opacity=100);
+    opacity: 1.0;
+   }
+  .disabled-icon {
+    -moz-opacity: 0.2;
+    filter:alpha(opacity=20);
+    opacity: 0.2
+  }
+
+  .activity-count {
+    margin-left: 18px;
+    height: 10px;
+    font-size: $font-tinywiny;
+    padding: 0.4em;
+    padding-top: 0.1em;
+  }
+  .discussion-link {
+    position: relative;
+    z-index: 2;
+  }
+}

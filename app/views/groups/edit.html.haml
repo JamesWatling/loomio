@@ -1,2 +1,2 @@
-%h2.header-space Edit Group
-=render :partial => 'form'
+= render '/groups/title', group: @group
+= render 'form', group: @group, parent: @parent

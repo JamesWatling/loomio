@@ -9,7 +9,7 @@ if defined?(Bundler)
   # Bundler.require(:default, :assets, Rails.env)
 end
 
-module Tautoko
+module Loomio
   class Application < Rails::Application
 
     config.generators do |g|
@@ -49,5 +49,14 @@ module Tautoko
 
     # Version of your assets, change this if you want to expire all your assets
     config.assets.version = '1.0'
+
+    # Email admin when server gets exceptions!
+    config.middleware.use ExceptionNotifier,
+      :email_prefix => "[Loomio Exception] ",
+      :sender_address => %{"Exception Notifier" <dudley@loom.io>},
+      :exception_recipients => %w{jon.lemmon@enspiral.com}
+
+    # Whitelist attributes so we never have to spend 2 days securing this app ;-)
+    config.active_record.whitelist_attributes = true
   end
 end

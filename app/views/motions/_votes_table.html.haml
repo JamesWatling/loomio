@@ -1,20 +1,12 @@
-- if motion.votes.size > 0
-  %table.zebra-striped
-    %th
-    %th user
-    %th statement
-    %th
-    -motion.votes.each do |vote|
-      %tr{:class => "everyone #{vote.user.group_tags_from(@motion.group).join(" ")}" }
-        %td=render partial: "display_icons", locals: {position: vote.position}
-        %td=vote.user_name
-        %td.vote-statement=vote.statement
-        - if vote.can_be_edited_by?(current_user)
-          %td
-            -if motion.phase == 'voting'
-              =link_to "edit", edit_motion_vote_path(motion, vote)
-              |
-              =link_to "delete", motion_vote_path(motion, vote), method: :delete,
-                confirm: "Are you sure you want to delete your vote?"
-        - else
-          %td
+%h3 Positions
+- unique_votes = motion.unique_votes
+- if unique_votes.size > 0
+  - if current_user && motion.user_has_voted?(current_user)
+    = render "motions/votes_table_vote", vote: current_user.get_vote_for(motion), motion: motion
+  - unique_votes.each do |vote|
+    - unless current_user && vote == current_user.get_vote_for(motion)
+      = render "motions/votes_table_vote", vote: vote, motion: motion
+- motion.users_who_did_not_vote.each do |user|
+  .position-row.clearfix
+    .position= image_tag "questionmark.png"
+    = link_to user.name, "#"

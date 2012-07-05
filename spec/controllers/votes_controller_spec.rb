@@ -3,10 +3,14 @@ require 'spec_helper'
 describe VotesController do
   context 'a signed in user voting on a motion' do
     before :each do
-      sign_in @user = User.make!
-      @group = Group.make!
+      @user = User.make
+      @user.save
+      sign_in @user
+      @group = Group.make
+      @group.save
       @group.add_member!(@user)
-      @motion = create_motion(group: @group, phase: 'voting')
+      @discussion = create_discussion(group: @group)
+      @motion = create_motion(discussion: @discussion, phase: 'voting')
       @motion.save!
     end
     context 'during voting phase' do
@@ -15,25 +19,32 @@ describe VotesController do
         post :create, motion_id: @motion.id,
              vote: {position: 'yes', statement: 'blah'}
         response.should be_redirect
-        flash[:notice].should =~ /Your vote has been submitted/
+        flash[:success].should =~ /Your vote has been submitted/
         assigns(:vote).user.should == @user
         assigns(:vote).motion.should == @motion
         assigns(:vote).position.should == 'yes'
         assigns(:vote).statement.should == 'blah'
       end
 
-      it 'can update vote' do
-        vote = Vote.new(motion: @motion, position: 'yes', user: @user)
+      it 'update vote creates a new vote' do
+        vote = Vote.new(position: 'yes')
+        vote.motion = @motion
+        vote.user = @user
         vote.save!
+
         post :update, motion_id: @motion.id, id: vote.id,
              vote: {position: 'no', statement: 'blah'}
+
         response.should be_redirect
-        flash[:notice].should =~ /Vote updated/
-        Vote.first.position.should == 'no'
+        flash[:success].should =~ /Vote updated/
+        Vote.all.count.should == 2
+        @user.get_vote_for(@motion).position.should == 'no'
       end
 
       it 'can delete vote' do
-        vote = Vote.new(motion: @motion, position: 'yes', user: @user)
+        vote = Vote.new(position: 'yes')
+        vote.motion = @motion
+        vote.user = @user
         vote.save!
         delete :destroy, id: vote.id, motion_id: @motion.id
         response.should be_redirect
@@ -44,7 +55,8 @@ describe VotesController do
 
     context 'during closed phase' do
       before :each do
-        @motion = create_motion(group: @group, phase: 'closed', author: @user)
+        @discussion = create_discussion(group: @group, author: @user)
+        @motion = create_motion(discussion: @discussion, phase: 'closed')
       end
 
       it 'cannot vote' do

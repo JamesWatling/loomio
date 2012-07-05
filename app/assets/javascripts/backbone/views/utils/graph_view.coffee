@@ -1,6 +1,6 @@
-Tautoko.Views.Utils ||= {}
+Loomio.Views.Utils ||= {}
 
-class Tautoko.Views.Utils.GraphView extends Backbone.View
+class Loomio.Views.Utils.GraphView extends Backbone.View
 
   initialize: (options)->
     if @options.type == 'pie'
@@ -20,8 +20,8 @@ class Tautoko.Views.Utils.GraphView extends Backbone.View
         legend: { show: @options.legend, location: 'e' }
         grid: { background:'rgba(0,0,0,0)', shadow: false, borderWidth: 0 }
 
-        seriesColors: [ "#90D490", "#F0BB67", "#D49090", "#FF0000", '#ccc']
+        seriesColors: [ "#90D490", "#F0BB67", "#D49090", "#dd0000", '#ccc']
 
       }
      )
-     $("#" + "expand_" + @options.motion_id).hide()
+     #$("#" + "expand_" + @options.motion_id).hide()

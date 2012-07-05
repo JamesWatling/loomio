@@ -1,6 +1,3 @@
 #edit-motion
-  .row
-    .span16
-      %h4.group-title= link_to @motion.group.name, group_path(@motion.group), title: "group"
-      %h2= @motion.name
-      =render 'form', form_args: [@motion]
+  =render '/groups/title', group: @group
+  =render 'motions/form', form_args: [@motion]

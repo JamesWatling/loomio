@@ -1,6 +1,3 @@
 #new-motion
-  .row
-    .span16
-      %h4.group-title= link_to @motion.group.name, group_path(@motion.group), title: "group"
-      %h2 New motion
-      =render 'form', form_args: [@motion, {url: motions_path(group_id: @motion.group)}]
+  =render '/groups/title', group: @group
+  =render 'motions/form', form_args: [@motion, {url: motions_path(group_id: @motion.group)}]

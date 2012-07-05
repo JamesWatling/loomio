@@ -24,55 +24,57 @@ describe Membership do
 
     it "cannot have duplicate memberships" do
       Membership.make!(:user => user, :group => group)
-
-      membership.user == user
-      membership.group == group
-      membership.should_not be_valid
+      membership.user = user
+      membership.group = group
+      membership.valid?
+      membership.errors_on(:user_id).should include("has already been taken")
     end
-  end
 
-  context "member can_be_deleted_by? admin" do
-    it "returns true" do
-      group.add_admin!(user)
-      membership = group.add_member!(user2)
-
-      membership.can_be_deleted_by?(user).should == true
-    end
-  end
-
-  context "admin can_be_deleted_by? admin" do
-    it "returns false" do
-      # [Jon] Machinist is lame... (causing bugs which requires
-      # the code below to workaround)
-      group = Group.make
+    it "user must be a member of parent group (if one exists)" do
+      group.parent = Group.make!
       group.save
-      user = User.make
-      user.save
-      user2 = User.make
-      user2.save
-
-      group.add_admin!(user)
-      membership = group.add_admin!(user2)
-      group.admins.should include(user2)
-
-      membership.can_be_deleted_by?(user).should == false
+      membership.group = group
+      membership.user = user
+      membership.valid?
+      membership.errors_on(:user).should include(
+        "must be a member of this group's parent")
     end
   end
 
-  context "request can_be_deleted member" do
-    it "returns true" do
-      group.add_member!(user)
-      membership = group.add_request!(user2)
+  context "destroy" do
+    it "removes subgroup memberships (if existing)" do
+      membership = group.add_member! user
+      # Removes user from multiple subgroups
+      subgroup = Group.make
+      subgroup.parent = group
+      subgroup.save
+      subgroup.add_member! user
+      subgroup2 = Group.make
+      subgroup2.parent = group
+      subgroup2.save
+      subgroup2.add_member! user
+      # Does not try to remove user from subgroup if user is not a member
+      subgroup3 = Group.make
+      subgroup3.parent = group
+      subgroup3.save
+      membership.destroy
 
-      membership.can_be_deleted_by?(user).should == true
+      subgroup.users.should_not include(user)
+      subgroup2.users.should_not include(user)
     end
-  end
 
-  context "request can_be_deleted requester" do
-    it "returns true" do
-      membership = group.add_request!(user)
+    it "removes open votes from user" do
+      membership = group.add_member! user
+      discussion = create_discussion(group: group)
+      motion = create_motion(discussion: discussion)
+      vote = Vote.new
+      vote.user = user
+      vote.position = "yes"
+      vote.motion = motion
+      vote.save!
+      membership.destroy
 
-      membership.can_be_deleted_by?(user).should == true
+      motion.votes.count.should == 0
     end
   end
 end

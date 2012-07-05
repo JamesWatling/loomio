@@ -1,61 +1,58 @@
 class GroupsController < GroupBaseController
-  # TODO Jon: some of the code for tagging in this controller can probably
-  # be moved into the model
-
   load_and_authorize_resource except: :show
-  before_filter :check_group_read_permissions, only: :show
+  before_filter :check_group_read_permissions, :only => :show
 
   def create
-    build_resource
-    @group.add_admin! current_user
-    create!
+    @group = Group.new(params[:group])
+    if @group.save
+      @group.add_admin! current_user
+      flash[:success] = "Group created successfully."
+      redirect_to @group
+    else
+      redirect_to :back
+    end
+  end
+
+  def show
+    @group = GroupDecorator.new(Group.find(params[:id]))
+    @subgroups = @group.subgroups.accessible_by(current_ability, :show)
+    if current_user
+      @motions_voted = current_user.group_motions_not_voted(@group)
+      @motions_not_voted = current_user.group_motions_not_voted(@group)
+    else
+      @motions_voted = @group.motions_voting
+    end
+    @motions_closed = @group.motions_closed
+  end
+
+  def edit
+    @group = GroupDecorator.new(Group.find(params[:id]))
   end
 
   # CUSTOM CONTROLLER ACTIONS
 
-  def invite_member
-    @group = Group.find(params[:id])
-    @user = User.new
+  def add_subgroup
+    @parent = Group.find(params[:id])
+    @subgroup = Group.new(:parent => @parent)
+    @subgroup.members_invitable_by = @parent.members_invitable_by
+  end
+
+  def add_members
+    params.each_key do |key|
+      if key =~ /user_/
+        user = User.find(key[5..-1])
+        group.add_member!(user)
+      end
+    end
+    flash[:success] = "Members added to group."
+    redirect_to group_url(group)
   end
 
   def request_membership
-    @group = Group.find(params[:id])
-    @membership = Membership.new
-  end
-
-  def add_user_tag
-    group = Group.find(params[:id])
-    user = User.find(params[:user_id])
-    new_tags = user.group_tags_from(group).join(",") + "," + params[:tag]
-    group.set_user_tags user, new_tags
-    #TODO AC: tests fail without this redirect, open to suggestions here
-    redirect_to groups_url
-  end
-
-  def delete_user_tag
-    group = Group.find(params[:id])
-    user = User.find(params[:user_id])
-    group.delete_user_tag user, params[:tag]
-    #TODO AC: tests fail without this redirect, open to suggestions here
-    redirect_to groups_url
-  end
-
-  def group_tags
-    group = Group.find(params[:id])
-    tags = group.owned_tags.where("tags.name LIKE ?", "%#{params[:q]}%")
-
-    respond_to do |format|
-      format.json { render json: tags.collect {|tag| {:id => tag.id, :name => tag.name } } }
-    end
-  end
-
-  def user_group_tags
-    group = Group.find params[:id]
-    user = User.find params[:user_id]
-    tags = group.get_user_tags user
-
-    respond_to do |format|
-      format.json { render json: tags.collect {|tag| {:id => tag.id, :name => tag.name } } }
+    if resource.users.include? current_user
+      redirect_to group_url(resource)
+    else
+      @membership = Membership.new
     end
   end
 
