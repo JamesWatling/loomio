@@ -1,0 +1,12 @@
+.modal-header
+  %button.close{"data-dismiss" => "modal"}×
+  %h3= "New Group"
+= form_tag new_group_path do
+  .modal-body
+    .control-group
+  = render 'groups/form', group: group,
+  submit_text: "Create group", :data => { :disable_with => "Creating group" }
+ 
+  .modal-footer
+    = submit_tag "Send email", class: "btn btn-primary run-validations"
+

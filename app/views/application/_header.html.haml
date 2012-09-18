@@ -35,8 +35,7 @@
                       -#.notification-container
                         -#.span.label.label-important= activity
             %li.new-group
-              =link_to "+ Add New Group", new_group_path
-
+              =link_to "+ Add New Group", "#new-group-modal", "data-toggle" => "modal"
         %li.dropdown#notifications-container
           - latest_seen_notification = notifications.first.id if notifications.exists?
           = link_to "#", 'ajax-path' => mark_as_viewed_notifications_path(:latest_viewed => latest_seen_notification),
@@ -76,3 +75,6 @@
             %li= link_to('Sign out', destroy_user_session_path, method: :delete)
     - else
       .sign-in= link_to('Sign in', new_user_session_path)
+
+    #new-group-modal.modal.hidden
+      = render "groups/new", group: @group, parent: @parent
