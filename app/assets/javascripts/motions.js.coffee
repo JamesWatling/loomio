@@ -1,7 +1,7 @@
 DAY = 1000 * 60 * 60 * 24
 
 $ ->
-  if $("#motion-form").length > 0
+  if $("#motion-form").length > 0 or $(".motion").length > 0
     pad2 = ((number) ->
       if number < 10
         '0' + number
@@ -143,9 +143,6 @@ $ ->
     $("#motion-close-date").removeClass('hidden')
     event.preventDefault()
   )
-
-
-
 
 
 $ ->
