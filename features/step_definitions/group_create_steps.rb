@@ -3,6 +3,7 @@ When /^I click create group$/ do
 end
 
 When /^I fill in the group details$/ do
+  FactoryGirl.create :user, :email => "contact@loom.io"
   fill_in 'group-name', with: "New Test Group"
   click_on 'update-group'
 end

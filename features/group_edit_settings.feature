@@ -23,7 +23,7 @@ Feature: Edit group settings
   Scenario: Change group name
     When I visit the group settings page
     And I update the group name
-    Then the group name is changed
+    Then the group name should be changed
 
   Scenario: Change group invitations to allow all members
     When I visit the group settings page

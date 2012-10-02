@@ -10,5 +10,5 @@ Feature: Like post
     Given I am viewing a discussion titled "hello" in "demo-group"
     And I am on the discussion page
     When I write and submit a comment
-    And I click the like button on a post
+    And I like the post
     Then a post should be liked by "furry@example.com"

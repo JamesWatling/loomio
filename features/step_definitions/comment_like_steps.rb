@@ -1,4 +1,4 @@
-When /^I click the like button on a post$/ do
+When /^I like the post$/ do
   click_link 'Like'
 end
 

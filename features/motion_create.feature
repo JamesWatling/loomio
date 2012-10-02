@@ -8,7 +8,7 @@ Feature: Create Proposal
 
   Scenario: Create Proposal as Group User
     Given a group is created
-    When I am on a group page
-    And I click create proposal
+    And I am on a group page
+    When I click create proposal
     And fill in the proposal details
-    Then a new proposal is created
+    Then a new proposal should be created

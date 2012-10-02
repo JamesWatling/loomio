@@ -7,7 +7,7 @@ When /^fill in the proposal details$/ do
   fill_in 'motion_description', with: "This is the description of the best proposal ever"
 end
 
-Then /^a new proposal is created$/ do
+Then /^a new proposal should be created$/ do
   Discussion.where(:name =>"Best Proposal")
 end
 

@@ -20,7 +20,7 @@ When /^I update the group name$/ do
   fill_in 'group-name', with: "Second Test Group"
 end
 
-Then /^the group name is changed$/ do
+Then /^the group name should be changed$/ do
   Group.where(:name=>"Second Test Group").size > 0
 end
 

@@ -8,7 +8,6 @@ require 'cucumber/rails'
 require 'spork'
 
 # Move to spork prefork?
-require File.dirname(__FILE__) + '/../../db/seeds'
 
 # Capybara defaults to XPath selectors rather than Webrat's default of CSS3. In
 # order to ease the transition to Capybara we set the default here. If you'd
@@ -17,11 +16,12 @@ require File.dirname(__FILE__) + '/../../db/seeds'
 
 Spork.prefork do
   ENV["RAILS_ENV"] ||= test
+  require File.dirname(__FILE__) + '/../../db/seeds'
   Capybara.default_selector = :css
   ActionController::Base.allow_rescue = false
     DatabaseCleaner.strategy = :truncation
     DatabaseCleaner.orm = "active_record"
   Cucumber::Rails::Database.javascript_strategy = :truncation
-  Capybara.default_driver = :selenium
+  #Capybara.default_driver = :selenium
 end
 
