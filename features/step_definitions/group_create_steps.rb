@@ -8,11 +8,6 @@ When /^I fill in the group details$/ do
   click_on 'update-group'
 end
 
-
-Then /^a new group should be created$/ do
-  Group.where(:name=>"New Test Group").size > 0
-end
-
 Given /^a group is created$/ do
   visit "/groups/new"
   fill_in 'group-name', with: "New Test Group"
@@ -39,3 +34,6 @@ When /^I select private, member\-only$/ do
   choose 'group_members_invitable_by_admins'
 end
 
+Then /^a new group should be created$/ do
+  Group.where(:name=>"New Test Group").should exist
+end

@@ -137,6 +137,9 @@ GEM
     draper (0.11.1)
       activesupport (>= 2.3.10)
     ejs (1.0.0)
+    email_spec (1.2.1)
+      mail (~> 2.2)
+      rspec (~> 2.0)
     erubis (2.7.0)
     eventmachine (0.12.10)
     exception_notification (2.6.1)
@@ -235,6 +238,7 @@ GEM
     net-ssh (2.2.1)
     net-ssh-gateway (1.1.0)
       net-ssh (>= 1.99.1)
+    newrelic_rpm (3.4.2.1)
     nokogiri (1.5.5)
     orm_adapter (0.0.7)
     paperclip (3.1.2)
@@ -320,6 +324,9 @@ GEM
     sexp_processor (3.1.0)
     shoulda-matchers (1.2.0)
       activesupport (>= 3.0.0)
+    simple_form (2.0.2)
+      actionpack (~> 3.0)
+      activemodel (~> 3.0)
     simplecov (0.6.1)
       multi_json (~> 1.0)
       simplecov-html (~> 0.5.3)
@@ -380,6 +387,7 @@ DEPENDENCIES
   devise (~> 2.0.0)
   devise_invitable (~> 1.0.0)
   draper (~> 0.11.1)
+  email_spec
   exception_notification
   factory_girl_rails (~> 4.0)
   faker
@@ -400,6 +408,7 @@ DEPENDENCIES
   kaminari
   launchy
   modernizr-rails (~> 2.0.6)
+  newrelic_rpm
   nokogiri
   paperclip
   pg
@@ -414,6 +423,7 @@ DEPENDENCIES
   rspec-rails
   sass-rails (~> 3.2.5)
   shoulda-matchers
+  simple_form
   simplecov
   spork
   thin
