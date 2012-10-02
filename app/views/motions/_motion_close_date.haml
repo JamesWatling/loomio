@@ -1,0 +1,16 @@
+.closing-info
+  - if motion.has_close_date?
+    - if motion.voting?
+      = "Closing in #{time_ago_in_words(motion.close_date)}"
+    - else
+      %span= "Closed #{time_ago_in_words(motion.close_date)} ago"
+  - else
+    No close date
+#edit-date-input.hidden
+  = form_for motion, :url => edit_outcome_motion_path(motion.id) do |f|
+    = f.hidden_field :id
+    .control-group
+      = f.text_area :outcome, id: 'outcome-input', class: 'inputError limit-250', placeholder: "What was the outcome of this proposal?"
+      .character-counter
+    .save-button.clearfix
+      = f.submit "Save", class: 'btn btn-mini run-validations', id: 'add-outcome-submit'

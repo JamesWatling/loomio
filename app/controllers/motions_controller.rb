@@ -74,6 +74,15 @@ class MotionsController < GroupBaseController
     redirect_to discussion_url(motion.discussion, proposal: motion)
   end
 
+
+  def edit_close_date
+    resource
+    motion = Motion.find(params[:motion][:id])
+    motion.close_date = params[:motion][:close_date]
+    motion.save!
+    end
+
+
   private
 
     def group

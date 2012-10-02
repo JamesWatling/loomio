@@ -121,6 +121,33 @@ $ ->
     event.preventDefault()
   )
 
+# show form for editing close date
+$ ->
+  $("#edit-close-date").click((event) ->
+    $("#close-date-input").toggle()
+    $("#close-date-display").toggle()
+    event.preventDefault()
+  )
+
+
+
+# Edit close date
+$ ->
+  $("#edit-close-date").click((event) ->
+    event.preventDefault()
+    $(".closing-info").addClass("hidden")
+    $("#edit-date-input").removeClass('hidden')
+  )
+  $("#cancel-edit-close-date").click((event) ->
+    $("#edit-motion-close-date").addClass('hidden')
+    $("#motion-close-date").removeClass('hidden')
+    event.preventDefault()
+  )
+
+
+
+
+
 $ ->
   if $("#outcome-input").length > 0
     if $("#outcome-input").hasClass("hidden")

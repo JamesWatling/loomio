@@ -95,6 +95,7 @@ class DiscussionsController < GroupBaseController
     discussion.save!
   end
 
+
   private
 
     def group

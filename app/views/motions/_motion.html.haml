@@ -3,14 +3,7 @@
     %h3.word-break= motion.name
     - if motion.closed?
       %span.label.label-important Closed
-  .closing-info
-    - if motion.has_close_date?
-      - if motion.voting?
-        = "Closing in #{time_ago_in_words(motion.close_date)}"
-      - else
-        %span= "Closed #{time_ago_in_words(motion.close_date)} ago"
-    - else
-      No close date
+  =render "motions/motion_close_date", motion: motion
   - if motion.closed?
     =render "motions/outcome_statement", motion: motion, this_group: this_group
   .proposed-by
