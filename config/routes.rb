@@ -35,6 +35,7 @@ Loomio::Application.routes.draw do
     post :add_comment, :on => :member
     get :new_proposal, :on => :member
     post :edit_title, :on => :member
+    post :edit_close_date, :on => :member
   end
 
   resources :notifications, :only => :index do
